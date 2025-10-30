@@ -106,10 +106,6 @@ def initialiseCube(n):
     )
     startState = list()
     if select == "2":
-        print("Still in process")
-        # =====================================
-
-        # To work on random cube generator
         validMoves = generateValidMoves(n)
         moves = [random.choice(validMoves) for _ in range(3)]
         print("Moves")
@@ -119,7 +115,6 @@ def initialiseCube(n):
         for move in moves:
             startState = playMove(move, startState)
         return startState
-        # =====================================
 
     elif select == "1":
         face = list()
@@ -292,11 +287,36 @@ def playMove(move, previousState):
     return currentState
 
 
+def cubeToString(cube):
+    s = ""
+    for i in cube:
+        for j in i:
+            for k in j:
+                s += str(k)
+    return s
+
+
+def stringToCube(s):
+    n = (s / 6) ** 1 / 2
+    cnt = 0
+    cube = list()
+    for i in 6:
+        face = list()
+        for j in range(n):
+            layer = list()
+            for k in range(n):
+                layer.append(s[int(cnt)])
+                cnt += 1
+        face.append(layer)
+    cube.append(face)
+    return cube
+
+
 def solve(startState, finalState, n):
 
     validMoves = generateValidMoves(n)
     parent = dict()
-    parent[tuple(startState)] = (None, None)
+    parent[cubeToString(startState)] = [None, None]
     q = queue.Queue()
     q.put(startState)
     solutionFound = False
@@ -305,8 +325,8 @@ def solve(startState, finalState, n):
         currentState = q.get()
         for move in validMoves:
             nextState = playMove(move, currentState)
-            if parent.get(tuple(nextState), -1) == -1:
-                parent[tuple(nextState)] = (move, tuple(currentState))
+            if parent.get(cubeToString(nextState), -1) == -1:
+                parent[cubeToString(nextState)] = (move, currentState)
                 q.put(nextState)
             else:
                 continue
@@ -321,9 +341,10 @@ def solve(startState, finalState, n):
         backtrackArr.append(finalState)
         curr = finalState
         while curr:
-            solutionMoves.append(parent[curr][0])
-            backtrackArr.append(parent[curr][1])
-            curr = parent[curr][1]
+            st = cubeToString(curr)
+            solutionMoves.append(parent[st][0])
+            backtrackArr.append(parent[st][1])
+            curr = parent[st][1]
         print(*backtrackArr[::-1], sep="\n\n")
         print(solutionMoves[::-1])
 
